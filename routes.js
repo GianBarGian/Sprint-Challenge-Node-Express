@@ -20,6 +20,22 @@ routes.get('/api/projects', (req, res, next) => {
         }))
 })
 
+
+//ACTIONS REQUESTS
+
+routes.get('/api/actions', (req, res, next) => {
+    actions.get()
+        .then(actions => {
+            res.json(actions);
+        })
+        .catch(err => {
+            next({
+                status: 500,
+                message: "Sorry, could not get actions!"
+            })
+        })
+})
+
 routes.use(errors.error);
 
 module.exports = routes;
