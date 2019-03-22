@@ -42,6 +42,32 @@ routes.delete('/api/projects/:id', (req, res, next) => {
         })
 })
 
+routes.put('/api/projects/:id', (req, res, next) => {
+    const { id } = req.params;
+    const uptadedProject = req.body;
+
+    uptadedProject.name && uptadedProject.description
+    ? projects.update(id, uptadedProject)
+        .then(project => {
+            project
+            ? res.json(project)
+            : next({
+                status: 404,
+                message: "A projects with that Id does not exists!"
+            })
+        .catch(err => {
+            next({
+                status: 500,
+                message: "The requested project could not be updated!"
+            })
+        })
+        })
+    : next({
+        status: 400,
+        message: "Please provide a name and a description to the project!" 
+    })
+})
+
 
 //ACTIONS REQUESTS
 
@@ -78,6 +104,37 @@ routes.delete('/api/actions/:id', (req, res, next) => {
                 message: "The requested action could not be deleted!"
             })
         })
+})
+
+routes.put('/api/actions/:id', (req, res, next) => {
+    const { id } = req.params;
+    const uptadedAction = req.body;
+    const validActionLength = uptadedAction.description.length < 129;
+    uptadedAction.project_id && uptadedAction.description && uptadedAction.notes
+    ?   validActionLength
+        ? actions.update(id, uptadedAction)
+        .then(action => {
+            action
+            ? res.json(action)
+            : next({
+                status: 404,
+                message: "An action with that Id does not exists!"
+            })
+        .catch(err => {
+            next({
+                status: 500,
+                message: "The requested action could not be updated!"
+            })
+        })
+        })
+        : next({
+            status: 400,
+            message: "The description for an action cannot be more then 128 characters!"
+        })
+    : next({
+        status: 400,
+        message: "Please provide a project Id, a description and notes to the action!" 
+    })
 })
 
 routes.use(errors.error);
