@@ -21,6 +21,26 @@ routes.get('/api/projects', (req, res, next) => {
         }))
 })
 
+routes.get('/api/projects/:id', (req, res, next) => {
+    const { id } = req.params;
+
+    projects.getProjectActions(id)
+        .then(actions => {
+            actions
+            ? res.json(actions)
+            : next({
+                status: 404,
+                message: "A projects with that Id does not exists!"
+            })
+        })
+        .catch(err => {
+            next({
+                status: 500,
+                message: "The actions for the specified project could not be retrived!"
+            })
+        })
+})
+
 routes.delete('/api/projects/:id', (req, res, next) => {
     const { id } = req.params;
 
