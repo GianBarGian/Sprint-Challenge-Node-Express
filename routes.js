@@ -68,6 +68,25 @@ routes.put('/api/projects/:id', (req, res, next) => {
     })
 })
 
+routes.post('/api/projects', (req, res, next) => {
+    const newProject = req.body;
+
+    newProject.name && newProject.description
+    ? projects.insert(newProject)
+        .then(project => {
+            res.json(project);
+        })
+        .catch(err => {
+            next({
+                status: 500,
+                message: "The requested project could not be posted!"
+            })
+        })
+    : next({
+        status: 400,
+        message: "Please provide a name and a description to the project!" 
+    })
+})
 
 //ACTIONS REQUESTS
 
@@ -127,6 +146,32 @@ routes.put('/api/actions/:id', (req, res, next) => {
             })
         })
         })
+        : next({
+            status: 400,
+            message: "The description for an action cannot be more then 128 characters!"
+        })
+    : next({
+        status: 400,
+        message: "Please provide a project Id, a description and notes to the action!" 
+    })
+})
+
+routes.post('/api/actions', (req, res, next) => {
+    const newAction = req.body;
+    const validActionLength = newAction.description.length < 129;
+
+    newAction.project_id && newAction.description && newAction.notes
+    ?   validActionLength
+        ? actions.insert(newAction)
+            .then(action => {
+                res.json(action);
+            })
+            .catch(err => {
+                next({
+                    status: 500,
+                    message: "The requested action could not be posted!"
+                })
+            })
         : next({
             status: 400,
             message: "The description for an action cannot be more then 128 characters!"
