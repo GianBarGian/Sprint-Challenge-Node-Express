@@ -26,13 +26,23 @@ Demonstrate your understanding of this Sprint's concepts by answering the follow
 
 - [ ] Mention two parts of Express that you learned about this week.
 
+    Express Routing , and express Middlewares
+
 - [ ] Describe Middleware?
+
+    A middleware is a function that can take the request and respond body (and an optional function next()),  and the can ‘do stuff’ (e.g modify the req or res objects before sending them to another midllewares). When a middleware send the res object back  it short circuit the req-res cycle.
 
 - [ ] Describe a Resource?
 
+    A resource is a collection of data in a REST API. Basically every data in a REST API should be treated as a resource (instead for instance to a function in RPC API). Every resource ir collection of resources should be easy to handle through the URL we assigned to them.
+
 - [ ] What can the API return to help clients know if a request was successful?
 
+    A status attached to the respond object in the range 200-299.
+
 - [ ] How can we partition our application into sub-applications?
+
+    Our API application can be partitioned using express routers. those acts like sub-applications and get imported from a single file at the “head” of our app. 
 
 ## Project Setup
 
