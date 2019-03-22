@@ -2,6 +2,7 @@ const express = require('express');
 const projects = require('./data/helpers/projectModel');
 const actions = require('./data/helpers/actionModel');
 const errors = require('./Middlewares/errors');
+const mw = require('./Middlewares/middlewares'); 
 
 const routes = express.Router();
 
@@ -42,12 +43,11 @@ routes.delete('/api/projects/:id', (req, res, next) => {
         })
 })
 
-routes.put('/api/projects/:id', (req, res, next) => {
+routes.put('/api/projects/:id', mw.checkProjectBody, (req, res, next) => {
     const { id } = req.params;
     const uptadedProject = req.body;
 
-    uptadedProject.name && uptadedProject.description
-    ? projects.update(id, uptadedProject)
+    projects.update(id, uptadedProject)
         .then(project => {
             project
             ? res.json(project)
@@ -55,24 +55,19 @@ routes.put('/api/projects/:id', (req, res, next) => {
                 status: 404,
                 message: "A projects with that Id does not exists!"
             })
+        })    
         .catch(err => {
             next({
                 status: 500,
                 message: "The requested project could not be updated!"
             })
         })
-        })
-    : next({
-        status: 400,
-        message: "Please provide a name and a description to the project!" 
-    })
 })
 
-routes.post('/api/projects', (req, res, next) => {
+routes.post('/api/projects', mw.checkProjectBody, (req, res, next) => {
     const newProject = req.body;
 
-    newProject.name && newProject.description
-    ? projects.insert(newProject)
+    projects.insert(newProject)
         .then(project => {
             res.json(project);
         })
@@ -82,10 +77,6 @@ routes.post('/api/projects', (req, res, next) => {
                 message: "The requested project could not be posted!"
             })
         })
-    : next({
-        status: 400,
-        message: "Please provide a name and a description to the project!" 
-    })
 })
 
 //ACTIONS REQUESTS
@@ -125,61 +116,39 @@ routes.delete('/api/actions/:id', (req, res, next) => {
         })
 })
 
-routes.put('/api/actions/:id', (req, res, next) => {
+routes.put('/api/actions/:id', mw.checkActionBody, (req, res, next) => {
     const { id } = req.params;
     const uptadedAction = req.body;
-    const validActionLength = uptadedAction.description.length < 129;
-    uptadedAction.project_id && uptadedAction.description && uptadedAction.notes
-    ?   validActionLength
-        ? actions.update(id, uptadedAction)
-        .then(action => {
-            action
-            ? res.json(action)
-            : next({
-                status: 404,
-                message: "An action with that Id does not exists!"
-            })
-        .catch(err => {
-            next({
-                status: 500,
-                message: "The requested action could not be updated!"
-            })
-        })
-        })
+    
+    actions.update(id, uptadedAction)
+    .then(action => {
+        action
+        ? res.json(action)
         : next({
-            status: 400,
-            message: "The description for an action cannot be more then 128 characters!"
+            status: 404,
+            message: "An action with that Id does not exists!"
         })
-    : next({
-        status: 400,
-        message: "Please provide a project Id, a description and notes to the action!" 
+    .catch(err => {
+        next({
+            status: 500,
+            message: "The requested action could not be updated!"
+        })
+    })
     })
 })
 
-routes.post('/api/actions', (req, res, next) => {
+routes.post('/api/actions', mw.checkActionBody, (req, res, next) => {
     const newAction = req.body;
-    const validActionLength = newAction.description.length < 129;
-
-    newAction.project_id && newAction.description && newAction.notes
-    ?   validActionLength
-        ? actions.insert(newAction)
-            .then(action => {
-                res.json(action);
-            })
-            .catch(err => {
-                next({
-                    status: 500,
-                    message: "The requested action could not be posted!"
-                })
-            })
-        : next({
-            status: 400,
-            message: "The description for an action cannot be more then 128 characters!"
+    actions.insert(newAction)
+        .then(action => {
+            res.json(action);
         })
-    : next({
-        status: 400,
-        message: "Please provide a project Id, a description and notes to the action!" 
-    })
+        .catch(err => {
+            next({
+                status: 500,
+                message: "The requested action could not be posted!"
+            })
+        })
 })
 
 routes.use(errors.error);
